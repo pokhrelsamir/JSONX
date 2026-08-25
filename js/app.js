@@ -30,6 +30,11 @@ const fileInput = $("fileInput");
 const clearHistoryButton = $("clearHistoryButton");
 const historyList = $("historyList");
 
+// Export buttons
+const exportCsvBtn = $("exportCsvBtn");
+const exportYamlBtn = $("exportYamlBtn");
+const exportXmlBtn = $("exportXmlBtn");
+
 const stats = {
     objects: $("objectCount"),
     arrays: $("arrayCount"),
@@ -81,6 +86,11 @@ function attachEventListeners() {
     clearHistoryButton.addEventListener("click", handleClearHistory);
     treeSearch.addEventListener("input", handleTreeSearch);
     fileInput.addEventListener("change", handleFileImport);
+
+    // Export conversion handlers
+    if (exportCsvBtn) exportCsvBtn.addEventListener("click", () => handleExport("csv"));
+    if (exportYamlBtn) exportYamlBtn.addEventListener("click", () => handleExport("yaml"));
+    if (exportXmlBtn) exportXmlBtn.addEventListener("click", () => handleExport("xml"));
 
     jsonInput.addEventListener("input", () => {
         saveJSON(jsonInput.value);
@@ -173,6 +183,50 @@ function handleValidate() {
     hideError();
 }
 
+function handleExport(type) {
+    const raw = jsonInput.value.trim();
+    if (!raw) {
+        showError("Please enter valid JSON before exporting.");
+        return;
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        let converted = "";
+        let mimeType = "text/plain";
+        let extension = type;
+
+        if (type === "csv") {
+            converted = jsonToCSV(parsed);
+            mimeType = "text/csv";
+        } else if (type === "yaml") {
+            converted = jsonToYAML(parsed);
+            mimeType = "text/yaml";
+            extension = "yaml";
+        } else if (type === "xml") {
+            converted = jsonToXML(parsed);
+            mimeType = "application/xml";
+        }
+
+        downloadFile(converted, `jsonx-export.${extension}`, mimeType);
+    } catch (error) {
+        handleError(`Export failed: ${error.message}`);
+    }
+}
+
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
 function setValidState() {
     inputStatus.textContent = "Valid";
     inputStatus.classList.remove("invalid");
@@ -214,16 +268,7 @@ function handleDownload() {
         return;
     }
 
-    const blob = new Blob([output], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = "jsonx-output.json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    downloadFile(output, "jsonx-output.json", "application/json");
 }
 
 function handleClear() {
