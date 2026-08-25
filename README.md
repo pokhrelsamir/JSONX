@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository">
 </a>
 
-<br><br>
+<br>
 
 <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
 <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
@@ -226,9 +226,15 @@ If using VS Code:
 
 # 🌐 Live Demo
 
-Try the deployed web application:
+Try the fully deployed JSONX application:
 
-[https://pokhrelsamir.github.io/JSONX/](https://pokhrelsamir.github.io/JSONX/)
+<div align="center">
+
+<a href="https://pokhrelsamir.github.io/JSONX/">
+  <img src="https://img.shields.io/badge/%F0%9F%9A%80%20Open%20JSONX-Live%20Demo-6366f1?style=for-the-badge" alt="Open SubnetX Live Demo">
+</a>
+
+</div>
 
 ---
 
@@ -306,11 +312,24 @@ Contributions are welcome! If you want to enhance JSONX:
 
 # 👨‍💻 Author
 
+<div align="center">
+
 ### Samir Pokhrel
 
-**B.Sc. CSIT Student | Web Developer | Software Enthusiast**
+**B.Sc. CSIT Student | Web Developer | Networking Enthusiast**
 
 Built using **HTML, CSS, and JavaScript**
+
+<br>
+
+<a href="https://github.com/pokhrelsamir">
+  <img src="https://img.shields.io/badge/GitHub-pokhrelsamir-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+</a>
+<a href="https://www.linkedin.com/in/samirpokhrel/">
+  <img src="https://img.shields.io/badge/LinkedIn-Samir%20Pokhrel-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+</a>
+
+</div>
 
 ---
 
@@ -319,6 +338,8 @@ Built using **HTML, CSS, and JavaScript**
 If **JSONX** helps you inspect APIs or format JSON data faster, feel free to give the repository a ⭐ on GitHub!
 
 ---
+
+<div align="center">
 
 ### 🌐 JSONX
 
