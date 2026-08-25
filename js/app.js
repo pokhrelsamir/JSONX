@@ -1,764 +1,455 @@
 /**
  * =========================================================
- * JSONX
- * JSON Formatter & Explorer
- * Application Controller
- * =========================================================
- *
- * Responsibilities:
- * - UI event handling
- * - Format / Minify
- * - Validation
- * - Statistics
- * - Tree rendering
- * - Clipboard
- * - Download
- * - Theme switching
- * - Local storage
- * - Sample data
+ * JSONX — Application Controller
  * =========================================================
  */
 
+const $ = id => document.getElementById(id);
 
-/* =========================================================
-   DOM ELEMENTS
-   ========================================================= */
+const jsonInput = $("jsonInput");
+const jsonOutput = $("jsonOutput");
+const formatButton = $("formatButton");
+const minifyButton = $("minifyButton");
+const validateButton = $("validateButton");
+const copyButton = $("copyButton");
+const downloadButton = $("downloadButton");
+const clearButton = $("clearButton");
+const sampleButton = $("sampleButton");
+const themeToggle = $("themeToggle");
+const indentSize = $("indentSize");
+const errorMessage = $("errorMessage");
+const errorText = $("errorText");
+const inputStatus = $("inputStatus");
+const outputStatus = $("outputStatus");
+const jsonTree = $("jsonTree");
+const expandAllButton = $("expandAllButton");
+const collapseAllButton = $("collapseAllButton");
+const treeSearch = $("treeSearch");
+const searchCount = $("searchCount");
+const fileInput = $("fileInput");
+const clearHistoryButton = $("clearHistoryButton");
+const historyList = $("historyList");
 
-const jsonInput =
-    document.getElementById("jsonInput");
-
-const jsonOutput =
-    document.getElementById("jsonOutput");
-
-const formatButton =
-    document.getElementById("formatButton");
-
-const minifyButton =
-    document.getElementById("minifyButton");
-
-const validateButton =
-    document.getElementById("validateButton");
-
-const copyButton =
-    document.getElementById("copyButton");
-
-const downloadButton =
-    document.getElementById("downloadButton");
-
-const clearButton =
-    document.getElementById("clearButton");
-
-const sampleButton =
-    document.getElementById("sampleButton");
-
-const themeToggle =
-    document.getElementById("themeToggle");
-
-const indentSize =
-    document.getElementById("indentSize");
-
-const errorMessage =
-    document.getElementById("errorMessage");
-
-const errorText =
-    document.getElementById("errorText");
-
-const inputStatus =
-    document.getElementById("inputStatus");
-
-const outputStatus =
-    document.getElementById("outputStatus");
-
-const jsonTree =
-    document.getElementById("jsonTree");
-
-const expandAllButton =
-    document.getElementById("expandAllButton");
-
-const collapseAllButton =
-    document.getElementById("collapseAllButton");
-
-
-/* =========================================================
-   STATISTIC ELEMENTS
-   ========================================================= */
-
-const objectCount =
-    document.getElementById("objectCount");
-
-const arrayCount =
-    document.getElementById("arrayCount");
-
-const keyCount =
-    document.getElementById("keyCount");
-
-const stringCount =
-    document.getElementById("stringCount");
-
-const numberCount =
-    document.getElementById("numberCount");
-
-const depthCount =
-    document.getElementById("depthCount");
-
-
-/* =========================================================
-   SAMPLE JSON
-   ========================================================= */
+const stats = {
+    objects: $("objectCount"),
+    arrays: $("arrayCount"),
+    keys: $("keyCount"),
+    strings: $("stringCount"),
+    numbers: $("numberCount"),
+    booleans: $("booleanCount"),
+    nulls: $("nullCount"),
+    depth: $("depthCount")
+};
 
 const SAMPLE_JSON = {
     user: {
         name: "Samir",
         age: 26,
         active: true,
-        location: {
-            city: "Pokhara",
-            country: "Nepal"
-        },
-        skills: [
-            "HTML",
-            "CSS",
-            "JavaScript",
-            "Python"
-        ]
+        location: { city: "Pokhara", country: "Nepal" },
+        skills: ["HTML", "CSS", "JavaScript", "Python"]
     },
-
     projects: [
-        {
-            name: "JSONX",
-            type: "Developer Tool"
-        },
-        {
-            name: "StatKit",
-            type: "Statistics Toolkit"
-        }
-    ]
+        { name: "JSONX", type: "Developer Tool", status: "active" },
+        { name: "StatKit", type: "Statistics Toolkit", status: "complete" }
+    ],
+    metadata: { version: "1.0.0", openSource: true, notes: null }
 };
 
-
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    initializeApp
-);
-
+document.addEventListener("DOMContentLoaded", initializeApp);
 
 function initializeApp() {
-
     loadSavedData();
-
     loadSavedTheme();
-
-    attachEventListeners();
-
+    renderHistory();
     updateStatistics(null);
+    updateInputMeta();
+    attachEventListeners();
 }
-
-
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
 
 function attachEventListeners() {
+    formatButton.addEventListener("click", handleFormat);
+    minifyButton.addEventListener("click", handleMinify);
+    validateButton.addEventListener("click", handleValidate);
+    copyButton.addEventListener("click", handleCopy);
+    downloadButton.addEventListener("click", handleDownload);
+    clearButton.addEventListener("click", handleClear);
+    sampleButton.addEventListener("click", handleSample);
+    themeToggle.addEventListener("click", toggleTheme);
+    expandAllButton.addEventListener("click", expandAllTreeNodes);
+    collapseAllButton.addEventListener("click", collapseAllTreeNodes);
+    clearHistoryButton.addEventListener("click", handleClearHistory);
+    treeSearch.addEventListener("input", handleTreeSearch);
+    fileInput.addEventListener("change", handleFileImport);
 
-    formatButton.addEventListener(
-        "click",
-        handleFormat
-    );
+    jsonInput.addEventListener("input", () => {
+        saveJSON(jsonInput.value);
+        updateInputMeta();
+        inputStatus.textContent = jsonInput.value.trim() ? "Editing" : "Ready";
+        if (!jsonInput.value.trim()) {
+            outputStatus.textContent = "Ready";
+            hideError();
+        }
+    });
 
-    minifyButton.addEventListener(
-        "click",
-        handleMinify
-    );
+    jsonInput.addEventListener("keydown", event => {
+        if (event.key === "Tab") {
+            event.preventDefault();
+            const start = jsonInput.selectionStart;
+            const end = jsonInput.selectionEnd;
+            jsonInput.value = jsonInput.value.substring(0, start) + "  " + jsonInput.value.substring(end);
+            jsonInput.selectionStart = jsonInput.selectionEnd = start + 2;
+        }
+    });
 
-    validateButton.addEventListener(
-        "click",
-        handleValidate
-    );
-
-    copyButton.addEventListener(
-        "click",
-        handleCopy
-    );
-
-    downloadButton.addEventListener(
-        "click",
-        handleDownload
-    );
-
-    clearButton.addEventListener(
-        "click",
-        handleClear
-    );
-
-    sampleButton.addEventListener(
-        "click",
-        handleSample
-    );
-
-    themeToggle.addEventListener(
-        "click",
-        toggleTheme
-    );
-
-    expandAllButton.addEventListener(
-        "click",
-        expandAllTreeNodes
-    );
-
-    collapseAllButton.addEventListener(
-        "click",
-        collapseAllTreeNodes
-    );
-
-
-    jsonInput.addEventListener(
-        "input",
-        handleInput
-    );
+    document.addEventListener("keydown", handleShortcuts);
 }
 
+function handleShortcuts(event) {
+    if (!event.ctrlKey) return;
 
-/* =========================================================
-   INPUT HANDLING
-   ========================================================= */
-
-function handleInput() {
-
-    const value = jsonInput.value.trim();
-
-    saveJSON(value);
-
-    hideError();
-
-    if (!value) {
-
-        inputStatus.textContent = "Ready";
-
-        outputStatus.textContent = "Ready";
-
-        return;
+    if (event.key === "Enter") {
+        event.preventDefault();
+        handleFormat();
+    } else if (event.shiftKey && event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        handleMinify();
+    } else if (event.shiftKey && event.key.toLowerCase() === "v") {
+        event.preventDefault();
+        handleValidate();
+    } else if (event.shiftKey && event.key.toLowerCase() === "c") {
+        event.preventDefault();
+        handleCopy();
+    } else if (event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        handleClear();
     }
-
-    inputStatus.textContent = "Editing";
 }
-
-
-/* =========================================================
-   FORMAT
-   ========================================================= */
 
 function handleFormat() {
-
-    const input = jsonInput.value;
-
-    const indentation =
-        Number(indentSize.value);
-
     try {
+        const formatted = formatJSON(jsonInput.value, Number(indentSize.value));
+        const data = JSON.parse(jsonInput.value);
 
-        const formatted =
-            formatJSON(
-                input,
-                indentation
-            );
-
-        jsonOutput.textContent =
-            formatted;
-
-        const data =
-            JSON.parse(input);
-
-        renderJSONTree(
-            data,
-            jsonTree
-        );
-
+        setOutput(formatted, "Formatted");
+        renderJSONTree(data, jsonTree);
         updateStatistics(data);
-
-        inputStatus.textContent =
-            "Valid";
-
-        outputStatus.textContent =
-            "Formatted";
-
-        hideError();
-
-        saveJSON(input);
-
+        setValidState();
+        saveAndRemember();
     } catch (error) {
-
-        showError(
-            error.message
-        );
-
-        outputStatus.textContent =
-            "Error";
+        handleError(error.message);
     }
 }
-
-
-/* =========================================================
-   MINIFY
-   ========================================================= */
 
 function handleMinify() {
-
-    const input = jsonInput.value;
-
     try {
+        const minified = minifyJSON(jsonInput.value);
+        const data = JSON.parse(jsonInput.value);
 
-        const minified =
-            minifyJSON(input);
-
-        jsonOutput.textContent =
-            minified;
-
-        const data =
-            JSON.parse(input);
-
-        renderJSONTree(
-            data,
-            jsonTree
-        );
-
+        setOutput(minified, "Minified");
+        renderJSONTree(data, jsonTree);
         updateStatistics(data);
-
-        inputStatus.textContent =
-            "Valid";
-
-        outputStatus.textContent =
-            "Minified";
-
-        hideError();
-
-        saveJSON(input);
-
+        setValidState();
+        saveAndRemember();
     } catch (error) {
-
-        showError(
-            error.message
-        );
-
-        outputStatus.textContent =
-            "Error";
+        handleError(error.message);
     }
 }
-
-
-/* =========================================================
-   VALIDATE
-   ========================================================= */
 
 function handleValidate() {
+    const result = validateJSON(jsonInput.value);
 
-    const result =
-        validateJSON(
-            jsonInput.value
-        );
-
-
-    if (result.valid) {
-
-        inputStatus.textContent =
-            "Valid";
-
-        outputStatus.textContent =
-            "Valid";
-
-        hideError();
-
-        updateStatistics(
-            result.data
-        );
-
-        renderJSONTree(
-            result.data,
-            jsonTree
-        );
-
-    } else {
-
-        inputStatus.textContent =
-            "Invalid";
-
-        outputStatus.textContent =
-            "Invalid";
-
-        showError(
-            result.error
-        );
+    if (!result.valid) {
+        inputStatus.textContent = "Invalid";
+        inputStatus.classList.add("invalid");
+        outputStatus.textContent = "Invalid";
+        showError(result.error);
+        return;
     }
+
+    setValidState();
+    renderJSONTree(result.data, jsonTree);
+    updateStatistics(result.data);
+    hideError();
 }
 
+function setValidState() {
+    inputStatus.textContent = "Valid";
+    inputStatus.classList.remove("invalid");
+    inputStatus.classList.add("success");
+}
 
-/* =========================================================
-   COPY
-   ========================================================= */
+function setOutput(output, label) {
+    jsonOutput.textContent = output;
+    outputStatus.textContent = label;
+    outputStatus.classList.add("success");
+    outputStatus.classList.remove("invalid");
+    updateOutputMeta();
+    hideError();
+}
 
 async function handleCopy() {
-
-    const output =
-        jsonOutput.textContent;
+    const output = jsonOutput.textContent;
 
     if (!output) {
-
-        showError(
-            "There is no formatted JSON to copy."
-        );
-
+        showError("There is no JSON output to copy.");
         return;
     }
 
-
     try {
-
-        await navigator.clipboard.writeText(
-            output
-        );
-
-        const originalText =
-            copyButton.textContent;
-
-        copyButton.textContent =
-            "Copied";
-
-        setTimeout(() => {
-
-            copyButton.textContent =
-                originalText;
-
-        }, 1400);
-
-    } catch (error) {
-
-        showError(
-            "Unable to copy JSON."
-        );
+        await navigator.clipboard.writeText(output);
+        const original = copyButton.textContent;
+        copyButton.textContent = "Copied";
+        setTimeout(() => copyButton.textContent = original, 1400);
+    } catch {
+        showError("Unable to copy JSON. Your browser may block clipboard access.");
     }
 }
 
-
-/* =========================================================
-   DOWNLOAD
-   ========================================================= */
-
 function handleDownload() {
-
-    const output =
-        jsonOutput.textContent;
+    const output = jsonOutput.textContent;
 
     if (!output) {
-
-        showError(
-            "There is no JSON available to download."
-        );
-
+        showError("There is no JSON available to download.");
         return;
     }
 
-
-    const blob =
-        new Blob(
-            [output],
-            {
-                type: "application/json"
-            }
-        );
-
-
-    const url =
-        URL.createObjectURL(blob);
-
-
-    const link =
-        document.createElement("a");
+    const blob = new Blob([output], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
     link.href = url;
-
-    link.download =
-        "jsonx-output.json";
-
+    link.download = "jsonx-output.json";
     document.body.appendChild(link);
-
     link.click();
-
     link.remove();
-
     URL.revokeObjectURL(url);
 }
 
-
-/* =========================================================
-   CLEAR
-   ========================================================= */
-
 function handleClear() {
-
     jsonInput.value = "";
-
     jsonOutput.textContent = "";
-
     clearStoredJSON();
 
+    inputStatus.textContent = "Ready";
+    inputStatus.classList.remove("success", "invalid");
+    outputStatus.textContent = "Ready";
+    outputStatus.classList.remove("success", "invalid");
+
     hideError();
-
-    inputStatus.textContent =
-        "Ready";
-
-    outputStatus.textContent =
-        "Ready";
-
     updateStatistics(null);
-
-    jsonTree.innerHTML = `
-        <div class="empty-state">
-
-            <div class="empty-icon">
-                { }
-            </div>
-
-            <h3>
-                Nothing to explore yet
-            </h3>
-
-            <p>
-                Enter valid JSON and format it to view the structure.
-            </p>
-
-        </div>
-    `;
+    updateInputMeta();
+    updateOutputMeta();
+    treeSearch.value = "";
+    searchCount.textContent = "0";
+    renderEmptyTree();
 }
 
-
-/* =========================================================
-   SAMPLE
-   ========================================================= */
-
 function handleSample() {
-
-    const sample =
-        JSON.stringify(
-            SAMPLE_JSON,
-            null,
-            2
-        );
-
-    jsonInput.value =
-        sample;
-
-    saveJSON(sample);
-
+    jsonInput.value = JSON.stringify(SAMPLE_JSON, null, 2);
+    saveJSON(jsonInput.value);
+    updateInputMeta();
     handleFormat();
 }
 
-
-/* =========================================================
-   ERROR HANDLING
-   ========================================================= */
+function handleError(message) {
+    inputStatus.textContent = "Invalid";
+    inputStatus.classList.remove("success");
+    inputStatus.classList.add("invalid");
+    outputStatus.textContent = "Error";
+    outputStatus.classList.remove("success");
+    outputStatus.classList.add("invalid");
+    showError(message);
+}
 
 function showError(message) {
-
-    errorText.textContent =
-        message;
-
-    errorMessage.hidden =
-        false;
+    errorText.textContent = message;
+    errorMessage.hidden = false;
 }
-
 
 function hideError() {
-
-    errorMessage.hidden =
-        true;
-
-    errorText.textContent =
-        "";
+    errorMessage.hidden = true;
+    errorText.textContent = "";
 }
 
-
-/* =========================================================
-   STATISTICS
-   ========================================================= */
-
 function updateStatistics(data) {
-
-    if (data === null || data === undefined) {
-
-        objectCount.textContent = "0";
-        arrayCount.textContent = "0";
-        keyCount.textContent = "0";
-        stringCount.textContent = "0";
-        numberCount.textContent = "0";
-        depthCount.textContent = "0";
-
-        return;
-    }
-
-
-    const stats = {
+    const result = {
         objects: 0,
         arrays: 0,
         keys: 0,
         strings: 0,
         numbers: 0,
+        booleans: 0,
+        nulls: 0,
         depth: 0
     };
 
+    if (data !== null && data !== undefined) {
+        analyzeJSON(data, 1, result);
+    }
 
-    analyzeJSON(
-        data,
-        1,
-        stats
-    );
-
-
-    objectCount.textContent =
-        stats.objects;
-
-    arrayCount.textContent =
-        stats.arrays;
-
-    keyCount.textContent =
-        stats.keys;
-
-    stringCount.textContent =
-        stats.strings;
-
-    numberCount.textContent =
-        stats.numbers;
-
-    depthCount.textContent =
-        stats.depth;
+    stats.objects.textContent = result.objects;
+    stats.arrays.textContent = result.arrays;
+    stats.keys.textContent = result.keys;
+    stats.strings.textContent = result.strings;
+    stats.numbers.textContent = result.numbers;
+    stats.booleans.textContent = result.booleans;
+    stats.nulls.textContent = result.nulls;
+    stats.depth.textContent = result.depth;
 }
 
-
-/**
- * Analyze JSON recursively
- *
- * @param {*} value
- * @param {number} depth
- * @param {object} stats
- */
-function analyzeJSON(
-    value,
-    depth,
-    stats
-) {
-
-    stats.depth =
-        Math.max(
-            stats.depth,
-            depth
-        );
-
+function analyzeJSON(value, depth, result) {
+    result.depth = Math.max(result.depth, depth);
 
     if (Array.isArray(value)) {
+        result.arrays++;
+        value.forEach(item => analyzeJSON(item, depth + 1, result));
+        return;
+    }
 
-        stats.arrays++;
-
-        value.forEach(item => {
-
-            analyzeJSON(
-                item,
-                depth + 1,
-                stats
-            );
-
+    if (typeof value === "object" && value !== null) {
+        result.objects++;
+        Object.entries(value).forEach(([key, child]) => {
+            result.keys++;
+            analyzeJSON(child, depth + 1, result);
         });
-
         return;
     }
 
-
-    if (
-        typeof value === "object" &&
-        value !== null
-    ) {
-
-        stats.objects++;
-
-        Object.entries(value)
-            .forEach(
-                ([key, child]) => {
-
-                    stats.keys++;
-
-                    analyzeJSON(
-                        child,
-                        depth + 1,
-                        stats
-                    );
-
-                }
-            );
-
-        return;
-    }
-
-
-    if (typeof value === "string") {
-        stats.strings++;
-    }
-
-    else if (typeof value === "number") {
-        stats.numbers++;
-    }
+    if (typeof value === "string") result.strings++;
+    else if (typeof value === "number") result.numbers++;
+    else if (typeof value === "boolean") result.booleans++;
+    else if (value === null) result.nulls++;
 }
 
-
-/* =========================================================
-   THEME
-   ========================================================= */
-
-function toggleTheme() {
-
-    const isDark =
-        document.body.classList.toggle(
-            "dark"
-        );
-
-
-    const theme =
-        isDark
-            ? "dark"
-            : "light";
-
-
-    saveTheme(theme);
+function updateInputMeta() {
+    const count = jsonInput.value.length;
+    $("inputMeta").textContent = `${count.toLocaleString()} characters`;
 }
 
-
-function loadSavedTheme() {
-
-    const theme =
-        loadTheme();
-
-    if (theme === "dark") {
-
-        document.body.classList.add(
-            "dark"
-        );
-    }
+function updateOutputMeta() {
+    const count = jsonOutput.textContent.length;
+    $("outputMeta").textContent = `${count.toLocaleString()} characters`;
 }
 
-
-/* =========================================================
-   LOAD SAVED DATA
-   ========================================================= */
+function saveAndRemember() {
+    const value = jsonInput.value.trim();
+    if (!value) return;
+    saveJSON(value);
+    addHistory(value);
+    renderHistory();
+}
 
 function loadSavedData() {
+    const saved = loadJSON();
+    if (saved) jsonInput.value = saved;
+}
 
-    const saved =
-        loadJSON();
+function toggleTheme() {
+    const isDark = document.body.classList.toggle("dark");
+    saveTheme(isDark ? "dark" : "light");
+}
 
-    if (!saved) {
+function loadSavedTheme() {
+    if (loadTheme() === "dark") document.body.classList.add("dark");
+}
+
+function handleTreeSearch() {
+    searchCount.textContent = String(searchTree(treeSearch.value));
+}
+
+function renderEmptyTree() {
+    jsonTree.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-icon">{ }</div>
+            <h3>Nothing to explore yet</h3>
+            <p>Enter valid JSON and format it to view the structure.</p>
+        </div>
+    `;
+}
+
+async function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+        const text = await file.text();
+        JSON.parse(text);
+
+        jsonInput.value = text;
+        saveJSON(text);
+        updateInputMeta();
+        handleFormat();
+    } catch (error) {
+        showError(`Unable to import "${file.name}". ${error.message}`);
+        handleError(error.message);
+    } finally {
+        fileInput.value = "";
+    }
+}
+
+function renderHistory() {
+    const history = loadHistory();
+
+    if (!history.length) {
+        historyList.innerHTML = `<div class="history-empty">No recent JSON yet.</div>`;
         return;
     }
 
-    jsonInput.value =
-        saved;
+    historyList.innerHTML = history.map((item, index) => {
+        let title = "JSON snippet";
+
+        try {
+            const parsed = JSON.parse(item.data);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+                const firstKey = Object.keys(parsed)[0];
+                if (firstKey) title = firstKey;
+            }
+        } catch {}
+
+        const date = new Date(item.createdAt).toLocaleString([], {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        return `
+            <div class="history-item">
+                <div class="history-info">
+                    <div class="history-name">${escapeHTML(title)}</div>
+                    <div class="history-meta">${item.data.length.toLocaleString()} characters · ${date}</div>
+                </div>
+                <button class="text-button history-load" data-history-index="${index}">Load</button>
+            </div>
+        `;
+    }).join("");
+
+    historyList.querySelectorAll("[data-history-index]").forEach(button => {
+        button.addEventListener("click", () => {
+            const item = history[Number(button.dataset.historyIndex)];
+            if (!item) return;
+
+            jsonInput.value = item.data;
+            saveJSON(item.data);
+            updateInputMeta();
+            handleFormat();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+}
+
+function handleClearHistory() {
+    clearHistory();
+    renderHistory();
+}
+
+function escapeHTML(value) {
+    return value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    }[char]));
 }
