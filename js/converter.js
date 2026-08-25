@@ -1,101 +1,159 @@
 /**
- * JSONX Converter Module
- * Handles converting JSON objects into CSV, XML, and YAML formats.
+ * =========================================================
+ * JSONX — Converter Utilities
+ * =========================================================
  */
-const Converter = (() => {
-  // Convert JSON to CSV
-  const toCSV = (jsonData) => {
-    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-    const array = Array.isArray(data) ? data : [data];
-    if (array.length === 0) return '';
 
-    // Collect all unique keys from all objects
+/**
+ * Converts a JSON object or array to CSV format.
+ */
+function jsonToCSV(json) {
+    if (!json) return "";
+
+    // If root is a single object, wrap in an array
+    const data = Array.isArray(json) ? json : [json];
+
+    if (data.length === 0) return "";
+
+    // Flatten nested structures for tabular output
+    const flattenedData = data.map(item => flattenObject(item));
+
+    // Extract all unique headers across objects
     const headers = Array.from(
-      new Set(array.flatMap((item) => (typeof item === 'object' && item !== null ? Object.keys(item) : [])))
+        new Set(flattenedData.flatMap(item => Object.keys(item)))
     );
 
-    if (headers.length === 0) return 'value\n' + array.join('\n');
-
     const csvRows = [];
-    csvRows.push(headers.join(','));
 
-    for (const row of array) {
-      const values = headers.map((header) => {
-        let val = row[header] ?? '';
-        if (typeof val === 'object') val = JSON.stringify(val);
-        const escaped = String(val).replace(/"/g, '""');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
+    // Header row
+    csvRows.push(headers.map(escapeCSVValue).join(","));
+
+    // Data rows
+    for (const row of flattenedData) {
+        const values = headers.map(header => {
+            const val = row[header];
+            return escapeCSVValue(val !== undefined ? val : "");
+        });
+        csvRows.push(values.join(","));
     }
 
-    return csvRows.join('\n');
-  };
+    return csvRows.join("\n");
+}
 
-  // Convert JSON to XML
-  const toXML = (jsonData, rootName = 'root') => {
-    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+/**
+ * Converts a JSON object or array to YAML format.
+ */
+function jsonToYAML(json, indent = 0) {
+    const spacing = " ".repeat(indent);
 
-    const parseNode = (obj, name) => {
-      if (obj === null || obj === undefined) return `<${name}></${name}>`;
-      if (typeof obj !== 'object') return `<${name}>${String(obj).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</${name}>`;
+    if (json === null) return "null";
+    if (typeof json === "boolean" || typeof json === "number") return String(json);
+    if (typeof json === "string") return JSON.stringify(json);
 
-      let xml = `<${name}>`;
-      if (Array.isArray(obj)) {
-        xml = obj.map((item) => parseNode(item, 'item')).join('');
-      } else {
-        for (const key of Object.keys(obj)) {
-          xml += parseNode(obj[key], key.replace(/[^a-zA-Z0-9_-]/g, '_'));
-        }
-        xml += `</${name}>`;
-      }
-      return xml;
-    };
-
-    return `<?xml version="1.0" encoding="UTF-8"?>\n` + parseNode(data, rootName);
-  };
-
-  // Convert JSON to simple YAML
-  const toYAML = (jsonData, indent = 0) => {
-    const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
-    const spacing = ' '.repeat(indent);
-
-    if (data === null) return 'null';
-    if (typeof data !== 'object') return JSON.stringify(data);
-
-    let yaml = '';
-    if (Array.isArray(data)) {
-      for (const item of data) {
-        if (typeof item === 'object' && item !== null) {
-          yaml += `${spacing}-\n${toYAML(item, indent + 2)}\n`;
-        } else {
-          yaml += `${spacing}- ${toYAML(item, 0)}\n`;
-        }
-      }
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        if (typeof value === 'object' && value !== null) {
-          yaml += `${spacing}${key}:\n${toYAML(value, indent + 2)}\n`;
-        } else {
-          yaml += `${spacing}${key}: ${toYAML(value, 0)}\n`;
-        }
-      }
+    if (Array.isArray(json)) {
+        if (json.length === 0) return "[]";
+        return json
+            .map(item => {
+                if (typeof item === "object" && item !== null) {
+                    const formatted = jsonToYAML(item, indent + 2).trimStart();
+                    return `${spacing}- ${formatted}`;
+                }
+                return `${spacing}- ${jsonToYAML(item, indent + 2)}`;
+            })
+            .join("\n");
     }
-    return yaml.trimEnd();
-  };
 
-  // Download string contents as file
-  const downloadFile = (content, filename, mimeType) => {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    if (typeof json === "object") {
+        const keys = Object.keys(json);
+        if (keys.length === 0) return "{}";
+        return keys
+            .map(key => {
+                const val = json[key];
+                if (typeof val === "object" && val !== null) {
+                    return `${spacing}${key}:\n${jsonToYAML(val, indent + 2)}`;
+                }
+                return `${spacing}${key}: ${jsonToYAML(val, indent)}`;
+            })
+            .join("\n");
+    }
 
-  return { toCSV, toXML, toYAML, downloadFile };
-})();
+    return String(json);
+}
+
+/**
+ * Converts a JSON object or array to XML format.
+ */
+function jsonToXML(json, rootName = "root") {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+
+    function buildXml(obj, nodeName) {
+        const cleanTag = sanitizeTagName(nodeName);
+
+        if (obj === null || obj === undefined) {
+            return `<${cleanTag}/>`;
+        }
+
+        if (Array.isArray(obj)) {
+            return obj.map(item => buildXml(item, cleanTag)).join("\n");
+        }
+
+        if (typeof obj === "object") {
+            let children = Object.entries(obj)
+                .map(([key, val]) => buildXml(val, key))
+                .join("\n  ");
+            
+            return children
+                ? `<${cleanTag}>\n  ${children}\n</${cleanTag}>`
+                : `<${cleanTag}/>`;
+        }
+
+        return `<${cleanTag}>${escapeXML(String(obj))}</${cleanTag}>`;
+    }
+
+    return xml + buildXml(json, rootName);
+}
+
+/* Helper functions */
+
+function flattenObject(obj, prefix = "") {
+    const result = {};
+
+    for (const [key, value] of Object.entries(obj || {})) {
+        const newKey = prefix ? `${prefix}.${key}` : key;
+
+        if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+            Object.assign(result, flattenObject(value, newKey));
+        } else if (Array.isArray(value)) {
+            result[newKey] = JSON.stringify(value);
+        } else {
+            result[newKey] = value;
+        }
+    }
+
+    return result;
+}
+
+function escapeCSVValue(value) {
+    if (value === null || value === undefined) return '""';
+    const str = String(value);
+    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+}
+
+function escapeXML(str) {
+    return str.replace(/[<>&'"]/g, char => ({
+        "<": "&lt;",
+        ">": "&gt;",
+        "&": "&amp;",
+        "'": "&apos;",
+        '"': "&quot;"
+    }[char]));
+}
+
+function sanitizeTagName(name) {
+    let tag = name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    if (/^[0-9]/.test(tag)) tag = "_" + tag;
+    return tag || "item";
+}
