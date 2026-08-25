@@ -1,0 +1,891 @@
+/* =========================================================
+   JSONX
+   JSON Formatter & Explorer
+   Professional Workspace Theme
+   ========================================================= */
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Inter", sans-serif;
+    background: #f7f8fa;
+    color: #20242b;
+    line-height: 1.5;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+button,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #4f46e5;
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.header {
+    height: 76px;
+    padding: 0 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    transition:
+        background-color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+/* Brand */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand-mark {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid #d9dcef;
+    border-radius: 8px;
+
+    background: #f5f6ff;
+    color: #4f46e5;
+
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.brand-content h1 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.brand-content p {
+    margin-top: 1px;
+
+    color: #737983;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+/* Header Actions */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.button {
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 15px;
+
+    border-radius: 7px;
+    border: 1px solid transparent;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.button:active {
+    transform: translateY(1px);
+}
+
+
+/* Primary */
+
+.button-primary {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
+.button-primary:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+}
+
+
+/* Secondary */
+
+.button-secondary {
+    background: #ffffff;
+    color: #3f4650;
+    border-color: #dfe2e7;
+}
+
+.button-secondary:hover {
+    background: #f7f8fa;
+    border-color: #cdd1d8;
+}
+
+
+/* Icon */
+
+.icon-button {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #59616c;
+
+    font-size: 16px;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.icon-button:hover {
+    background: #f7f8fa;
+    color: #20242b;
+}
+
+
+/* Text Button */
+
+.text-button {
+    border: 0;
+    background: transparent;
+
+    color: #4f46e5;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: color 0.18s ease;
+}
+
+.text-button:hover {
+    color: #3730a3;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.main {
+    width: min(1380px, calc(100% - 48px));
+    margin: 0 auto;
+
+    padding: 42px 0 70px;
+
+    flex: 1;
+}
+
+
+/* =========================================================
+   SECTION HEADINGS
+   ========================================================= */
+
+.section-heading {
+    margin-bottom: 22px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.section-heading.compact {
+    margin-bottom: 17px;
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 7px;
+
+    color: #7a818c;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+}
+
+.section-heading h2 {
+    color: #252a31;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    letter-spacing: -0.025em;
+}
+
+.section-heading p {
+    margin-top: 5px;
+
+    color: #737983;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   WORKSPACE
+   ========================================================= */
+
+.workspace-section {
+    margin-bottom: 54px;
+}
+
+
+/* =========================================================
+   EDITOR GRID
+   ========================================================= */
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+
+/* =========================================================
+   EDITOR PANEL
+   ========================================================= */
+
+.editor-panel {
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 10px;
+
+    box-shadow:
+        0 1px 2px rgba(20, 25, 35, 0.03);
+}
+
+
+/* Panel Header */
+
+.panel-header {
+    min-height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 15px;
+
+    background: #fafbfc;
+
+    border-bottom: 1px solid #e7e9ed;
+}
+
+.panel-header > div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.panel-title {
+    color: #343a43;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+
+/* Status */
+
+.status-label {
+    padding: 3px 7px;
+
+    border-radius: 4px;
+
+    background: #eef0f3;
+    color: #737983;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-label.success {
+    background: #edf8f1;
+    color: #27804b;
+}
+
+
+/* =========================================================
+   EDITOR
+   ========================================================= */
+
+.editor-wrapper {
+    min-height: 390px;
+    background: #ffffff;
+}
+
+.json-editor,
+.json-output {
+    width: 100%;
+    height: 390px;
+
+    padding: 20px;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+
+    color: #303640;
+
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    line-height: 1.75;
+
+    tab-size: 2;
+}
+
+.json-editor {
+    display: block;
+
+    resize: vertical;
+}
+
+.json-editor::placeholder {
+    color: #a2a8b1;
+}
+
+.json-output {
+    margin: 0;
+
+    overflow: auto;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    margin-top: 12px;
+
+    min-height: 58px;
+    padding: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 9px;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.select-label {
+    color: #737983;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.select {
+    height: 38px;
+
+    padding: 0 30px 0 10px;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #444b55;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+.error-message {
+    margin-top: 10px;
+    padding: 12px 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border: 1px solid #f0caca;
+    border-radius: 7px;
+
+    background: #fff7f7;
+    color: #a33a3a;
+
+    font-size: 12px;
+}
+
+.error-message strong {
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INSIGHTS
+   ========================================================= */
+
+.insights-section {
+    margin-bottom: 54px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    padding: 17px 16px;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 9px;
+
+    transition:
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.stat-card:hover {
+    border-color: #c9cdd5;
+    transform: translateY(-1px);
+}
+
+.stat-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #7a818c;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.stat-value {
+    display: block;
+
+    color: #272c34;
+
+    font-family: "JetBrains Mono", monospace;
+    font-size: 21px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   EXPLORER
+   ========================================================= */
+
+.explorer-section {
+    margin-bottom: 25px;
+}
+
+.explorer-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* Tree Container */
+
+.tree-container {
+    min-height: 260px;
+    padding: 18px 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe2e7;
+    border-radius: 10px;
+
+    overflow: auto;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.empty-icon {
+    width: 44px;
+    height: 44px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 13px;
+
+    border: 1px solid #e0e3e8;
+    border-radius: 8px;
+
+    background: #f8f9fb;
+    color: #7b8490;
+
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+}
+
+.empty-state h3 {
+    color: #414750;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.empty-state p {
+    max-width: 390px;
+
+    margin-top: 5px;
+
+    color: #858b95;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    min-height: 62px;
+
+    padding: 0 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-top: 1px solid #e5e7eb;
+
+    background: #ffffff;
+
+    color: #858b95;
+
+    font-size: 11px;
+}
+
+.footer span:first-child {
+    color: #4d5560;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
+body.dark {
+    background: #181a1f;
+    color: #e6e8eb;
+}
+
+body.dark .header,
+body.dark .footer,
+body.dark .editor-panel,
+body.dark .toolbar,
+body.dark .stat-card,
+body.dark .tree-container {
+    background: #202329;
+    border-color: #30343c;
+}
+
+body.dark .header {
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+body.dark .brand-mark {
+    background: #252836;
+    border-color: #383d50;
+    color: #818cf8;
+}
+
+body.dark .brand-content h1,
+body.dark .section-heading h2,
+body.dark .stat-value {
+    color: #eceef1;
+}
+
+body.dark .brand-content p,
+body.dark .section-heading p,
+body.dark .eyebrow,
+body.dark .stat-label,
+body.dark .select-label {
+    color: #9298a3;
+}
+
+body.dark .panel-header {
+    background: #1c1f24;
+    border-color: #30343c;
+}
+
+body.dark .panel-title {
+    color: #d4d7dc;
+}
+
+body.dark .editor-wrapper {
+    background: #202329;
+}
+
+body.dark .json-editor,
+body.dark .json-output {
+    color: #d8dce2;
+}
+
+body.dark .json-editor::placeholder {
+    color: #666d78;
+}
+
+body.dark .button-secondary,
+body.dark .icon-button,
+body.dark .select {
+    background: #25282e;
+    border-color: #383c44;
+    color: #d0d4da;
+}
+
+body.dark .button-secondary:hover,
+body.dark .icon-button:hover {
+    background: #2b2f36;
+    border-color: #454a54;
+}
+
+body.dark .stat-card:hover {
+    border-color: #464b55;
+}
+
+body.dark .empty-icon {
+    background: #25282e;
+    border-color: #373c44;
+    color: #9299a4;
+}
+
+body.dark .empty-state h3 {
+    color: #d4d8de;
+}
+
+body.dark .empty-state p {
+    color: #858c97;
+}
+
+body.dark .footer span:first-child {
+    color: #c8ccd2;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .editor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .editor-wrapper,
+    .json-editor,
+    .json-output {
+        min-height: 330px;
+        height: 330px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .header {
+        height: auto;
+        min-height: 70px;
+
+        padding: 14px 20px;
+    }
+
+    .brand-content p {
+        display: none;
+    }
+
+    .main {
+        width: min(100% - 28px, 1380px);
+        padding-top: 28px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .toolbar-group {
+        flex-wrap: wrap;
+    }
+
+    .toolbar-group:last-child {
+        justify-content: space-between;
+    }
+
+    .footer {
+        padding: 15px 20px;
+
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .explorer-actions {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 430px) {
+
+    .header-actions .button-secondary {
+        padding: 0 11px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 14px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .json-editor,
+    .json-output {
+        padding: 15px;
+        font-size: 12px;
+    }
+}
