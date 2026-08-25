@@ -577,3 +577,39 @@ body.dark .tree-match { background: #4a4121; color: #f0d98b; }
     .stat-value { font-size: 18px; }
     .panel-actions { gap: 6px; }
 }
+
+
+/* JSON Syntax Highlighting Tokens */
+.json-key { color: #e06c75; font-weight: 600; }
+.json-string { color: #98c379; }
+.json-number { color: #d19a66; }
+.json-boolean { color: #56b6c2; font-weight: bold; }
+.json-null { color: #c678dd; font-style: italic; }
+
+/* Tree Explorer Polishing */
+.tree-node { font-family: monospace; font-size: 14px; margin-left: 12px; }
+.tree-header { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 4px; }
+.tree-header:hover { background-color: rgba(255, 255, 255, 0.05); }
+.tree-toggle { cursor: pointer; user-select: none; font-size: 10px; width: 14px; }
+.tree-spacer { width: 14px; display: inline-block; }
+.tree-key { color: #61afef; }
+.tree-badge { color: #5c6370; font-size: 11px; font-style: italic; }
+.tree-val-string { color: #98c379; }
+.tree-val-number { color: #d19a66; }
+.tree-val-boolean { color: #56b6c2; }
+.tree-val-object { color: #abb2bf; }
+
+.tree-highlight { background-color: rgba(229, 192, 123, 0.2); border-radius: 2px; }
+
+.copy-path-btn {
+  opacity: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 4px;
+  transition: opacity 0.2s ease-in-out;
+}
+.tree-header:hover .copy-path-btn { opacity: 1; }
+
+.tree-node.collapsed > .tree-children { display: none; }

@@ -135,3 +135,120 @@ function searchTree(query) {
 
     return matches;
 }
+
+
+/**
+ * JSONX Interactive Tree Explorer
+ * Render JSON as expandable tree nodes with path copying and search.
+ */
+const TreeExplorer = (() => {
+  let containerElement = null;
+
+  const init = (containerId) => {
+    containerElement = document.getElementById(containerId);
+  };
+
+  const renderTree = (data, searchFilter = '') => {
+    if (!containerElement) return;
+    containerElement.innerHTML = '';
+    const rootNode = createNode('root', data, '', searchFilter.toLowerCase());
+    containerElement.appendChild(rootNode);
+  };
+
+  const createNode = (key, value, path, filter) => {
+    const nodeWrapper = document.createElement('div');
+    nodeWrapper.className = 'tree-node';
+
+    const currentPath = path ? (Array.isArray(value) ? `${path}[${key}]` : `${path}.${key}`) : key;
+    const isObject = typeof value === 'object' && value !== null;
+    const isArray = Array.isArray(value);
+
+    const header = document.createElement('div');
+    header.className = 'tree-header';
+
+    // Expand/Collapse Toggle Icon
+    if (isObject) {
+      const toggle = document.createElement('span');
+      toggle.className = 'tree-toggle expanded';
+      toggle.textContent = '▼';
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nodeWrapper.classList.toggle('collapsed');
+        toggle.textContent = nodeWrapper.classList.contains('collapsed') ? '▶' : '▼';
+      });
+      header.appendChild(toggle);
+    } else {
+      const spacer = document.createElement('span');
+      spacer.className = 'tree-spacer';
+      header.appendChild(spacer);
+    }
+
+    // Key Name Display
+    const keySpan = document.createElement('span');
+    keySpan.className = 'tree-key';
+    keySpan.textContent = isArray ? `[${key}]:` : `${key}:`;
+    header.appendChild(keySpan);
+
+    // Value or Composite Type Badge
+    if (isObject) {
+      const typeBadge = document.createElement('span');
+      typeBadge.className = 'tree-badge';
+      const count = Object.keys(value).length;
+      typeBadge.textContent = isArray ? `Array(${count})` : `Object{${count}}`;
+      header.appendChild(typeBadge);
+    } else {
+      const valSpan = document.createElement('span');
+      valSpan.className = `tree-val tree-val-${typeof value}`;
+      valSpan.textContent = typeof value === 'string' ? `"${value}"` : String(value);
+
+      // Highlight match if filter is active
+      if (filter && (key.toLowerCase().includes(filter) || String(value).toLowerCase().includes(filter))) {
+        header.classList.add('tree-highlight');
+      }
+
+      header.appendChild(valSpan);
+    }
+
+    // Copy Path Button on hover
+    const copyPathBtn = document.createElement('button');
+    copyPathBtn.className = 'copy-path-btn';
+    copyPathBtn.title = `Copy Path: ${currentPath}`;
+    copyPathBtn.textContent = '📍';
+    copyPathBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(currentPath);
+      copyPathBtn.textContent = '✓';
+      setTimeout(() => (copyPathBtn.textContent = '📍'), 1000);
+    });
+    header.appendChild(copyPathBtn);
+
+    nodeWrapper.appendChild(header);
+
+    // Recursively render children for objects and arrays
+    if (isObject) {
+      const childrenContainer = document.createElement('div');
+      childrenContainer.className = 'tree-children';
+
+      Object.keys(value).forEach((childKey) => {
+        const childNode = createNode(childKey, value[childKey], currentPath, filter);
+        childrenContainer.appendChild(childNode);
+      });
+
+      nodeWrapper.appendChild(childrenContainer);
+    }
+
+    return nodeWrapper;
+  };
+
+  const expandAll = () => {
+    containerElement.querySelectorAll('.tree-node').forEach((node) => node.classList.remove('collapsed'));
+    containerElement.querySelectorAll('.tree-toggle').forEach((toggle) => (toggle.textContent = '▼'));
+  };
+
+  const collapseAll = () => {
+    containerElement.querySelectorAll('.tree-node').forEach((node) => node.classList.add('collapsed'));
+    containerElement.querySelectorAll('.tree-toggle').forEach((toggle) => (toggle.textContent = '▶'));
+  };
+
+  return { init, renderTree, expandAll, collapseAll };
+})();
