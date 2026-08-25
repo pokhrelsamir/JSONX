@@ -48,7 +48,7 @@ const stats = {
 
 const SAMPLE_JSON = {
     user: {
-        name: "Samir",
+        name: "Samir PY",
         age: 26,
         active: true,
         location: { city: "Pokhara", country: "Nepal" },
